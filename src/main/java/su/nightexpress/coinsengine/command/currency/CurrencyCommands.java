@@ -287,13 +287,15 @@ public class CurrencyCommands {
         CommandSender sender = context.getSender();
 
         plugin.getServer().getOnlinePlayers().forEach(player -> {
-            CoinsUser user = plugin.getUserManager().getOrFetch(player);
+            plugin.runTaskAtPlayer(player, () -> {
+                CoinsUser user = plugin.getUserManager().getOrFetch(player);
 
-            AddOperation operation = CurrencyOperations.forAdd(currency, amount, user, sender);
-            operation.setFeedback(false);
-            operation.setNotify(!arguments.hasFlag(CommandFlags.SILENT));
+                AddOperation operation = CurrencyOperations.forAdd(currency, amount, user, sender);
+                operation.setFeedback(false);
+                operation.setNotify(!arguments.hasFlag(CommandFlags.SILENT));
 
-            plugin.getCurrencyManager().performOperation(operation);
+                plugin.getCurrencyManager().performOperation(operation);
+            });
         });
 
         if (!arguments.hasFlag(CommandFlags.SILENT_FEEDBACK)) {

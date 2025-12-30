@@ -286,13 +286,21 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             if (currency == null) {
                 Lang.RESET_ALL_STARTED_GLOBAL.getMessage().send(sender);
                 plugin.getDataHandler().resetBalances();
-                plugin.getUserManager().getLoaded().forEach(CoinsUser::resetBalance);
+                plugin.getUserManager().getLoaded().forEach(user -> {
+                    Player player = user.getPlayer();
+                    if (player != null) plugin.runTaskAtPlayer(player, user::resetBalance);
+                    else user.resetBalance();
+                });
                 Lang.RESET_ALL_COMPLETED_GLOBAL.getMessage().send(sender);
             }
             else {
                 Lang.RESET_ALL_STARTED_CURRENCY.getMessage().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
                 plugin.getDataHandler().resetBalances(currency);
-                plugin.getUserManager().getLoaded().forEach(user -> user.resetBalance(currency));
+                plugin.getUserManager().getLoaded().forEach(user -> {
+                    Player player = user.getPlayer();
+                    if (player != null) plugin.runTaskAtPlayer(player, () -> user.resetBalance(currency));
+                    else user.resetBalance(currency);
+                });
                 Lang.RESET_ALL_COMPLETED_CURRENCY.getMessage().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
             }
             this.allowOperations();
